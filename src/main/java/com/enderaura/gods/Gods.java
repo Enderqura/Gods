@@ -89,6 +89,10 @@ public final class Gods extends JavaPlugin implements Listener{
         if(event.getItem().equals(arws)) classPlayer(God.ARES);
         if(event.getItem().equals(zeus)) classPlayer(God.POSIEDEN);
     }
+  
+    public God getTeam(Player player){
+        return God.ZEUS;
+    }
 
     
 }
