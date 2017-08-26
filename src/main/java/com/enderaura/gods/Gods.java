@@ -1,5 +1,6 @@
 package com.enderaura.gods;
 
+import com.massivecraft.factions.Faction;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -114,8 +115,11 @@ public final class Gods extends JavaPlugin implements Listener{
     }
 
     public Class getClass(Player player){
+        return Class.valueOf(settings.getData().getString("player." + player.getUniqueId() + ".class"));
+    }
 
-
+    public God getTeam(Faction faction){
+        return God.valueOf(settings.getData().getString("player." + faction.getId() + ".god"));
     }
 
 
