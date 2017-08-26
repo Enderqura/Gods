@@ -4,3 +4,17 @@ gui:
     lore:
       - ''
       - 'The god of war...'
+  zeus:
+    name: '&b&lZeus'
+    lore:
+      - ''
+      - 'The god of the sky...'
+  poseiden:
+    name: '&a&lPoseidon'
+    lore:
+      - ''
+      - 'The god of the sea...'
+  select_god:
+    name: '&e&lSelect a god!'
+  select_class:
+    name: '&e&lSelect a class!'
