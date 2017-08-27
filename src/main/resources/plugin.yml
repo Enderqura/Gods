@@ -2,3 +2,5 @@ name: Gods
 version: 1.0
 main: com.enderaura.gods.Gods
 description: Gods plugin for AresNetwork
+
+depend: [Vault, Factions]
