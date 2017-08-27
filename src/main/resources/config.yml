@@ -18,3 +18,26 @@ gui:
     name: '&e&lSelect a god!'
   select_class:
     name: '&e&lSelect a class!'
+  stragiton:
+      name: '&c&lStratigon'
+      lore:
+        - ''
+        - 'Recieve a permananent sword with chances of dealing poison'
+  pterarcho:
+      name: '&c&lPterarcho'
+      lore:
+        - ''
+        - 'Recieve a permananent bow with chances of dealing weakness'
+  navarcho:
+      name: '&c&lNavarcho'
+      lore:
+        - ''
+        - 'Recieve a permananent sword with chances of dealing nausea'
+  antinavarcho:
+      name: '&c&lAntinavarcho'
+      lore:
+        - ''
+        - 'Recieve a permananent sword with chances of dealing wither'
+
+
+max-for-each-god: 100

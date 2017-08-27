@@ -1,16 +1,17 @@
 package com.enderaura.gods;
 
-import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.event.FPlayerJoinEvent;
 import com.massivecraft.factions.event.FactionCreateEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -20,12 +21,14 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public final class Gods extends JavaPlugin implements Listener{
 
@@ -113,9 +116,28 @@ public final class Gods extends JavaPlugin implements Listener{
     public void clickGod(InventoryClickEvent event){
         if(!event.getClickedInventory().equals(inventory)) return;
         if(!(event.getWhoClicked() instanceof Player)) return;
-        if(event.getCurrentItem().equals(zeus)) godPlayer(God.ZEUS, (Player) event.getWhoClicked());
-        if(event.getCurrentItem().equals(ares)) godPlayer(God.ARES, (Player) event.getWhoClicked());
-        if(event.getCurrentItem().equals(posieden)) godPlayer(God.POSIEDEN, (Player) event.getWhoClicked());
+        event.setCancelled(true);
+        if(event.getCurrentItem().equals(zeus)){
+            if(settings.getData().get("god." + God.ZEUS.toString()) != null && settings.getData().getInt("god." + God.ZEUS.toString()) < getConfig().getInt("max-for-each-god")) {
+                event.getWhoClicked().sendMessage(ChatColor.RED + "That God team is full! Try another one.");
+                return;
+            }
+            godPlayer(God.ZEUS, (Player) event.getWhoClicked());
+        }
+        if(event.getCurrentItem().equals(ares)) {
+            if(settings.getData().get("god." + God.ARES.toString()) != null && settings.getData().getInt("god." + God.ARES.toString()) < getConfig().getInt("max-for-each-god")) {
+                event.getWhoClicked().sendMessage(ChatColor.RED + "That God team is full! Try another one.");
+                return;
+            }
+            godPlayer(God.ARES, (Player) event.getWhoClicked());
+        }
+        if(event.getCurrentItem().equals(posieden)){
+            if(settings.getData().get("god." + God.POSIEDEN.toString()) != null && settings.getData().getInt("god." + God.POSIEDEN.toString()) < getConfig().getInt("max-for-each-god")) {
+                event.getWhoClicked().sendMessage(ChatColor.RED + "That God team is full! Try another one.");
+                return;
+            }
+            godPlayer(God.POSIEDEN, (Player) event.getWhoClicked());
+        }
         event.getWhoClicked().openInventory(c);
     }
 
@@ -143,6 +165,12 @@ public final class Gods extends JavaPlugin implements Listener{
 
     private void godPlayer(God god,Player player){
         settings.getData().set("player." + player.getUniqueId() + ".god", god.toString());
+        if(settings.getData().get("god." + god.toString()) != null) {
+            settings.getData().set("god." + god.toString(), settings.getData().getInt("god." + god.toString()) + 1);
+        }
+        else{
+            settings.getData().set("god." + god.toString(), 1);
+        }
     }
 
     private void classPlayer(Class clazz, Player player){
@@ -315,6 +343,40 @@ public final class Gods extends JavaPlugin implements Listener{
         e.setCancelled(true);
         e.getfPlayer().sendMessage(ChatColor.RED + "You're not in the correct god team to join this faction!");
     }
+
+    @EventHandler
+    public void onDamage(EntityDamageByEntityEvent e){
+        if(!(e.getEntity() instanceof  Player) || !(e.getDamager() instanceof Player) || !(e.getDamager() instanceof Arrow)) return;
+        Player hurt = (Player) e.getEntity();
+        Player damager;
+        if(e.getDamager() instanceof Arrow) {
+
+            Arrow arrow = (Arrow) e.getDamager();
+            if (!(arrow.getShooter() instanceof Player)) return;
+
+            damager = (Player) arrow.getShooter();
+        }else {
+
+            damager = (Player) e.getDamager();
+        }
+
+        ItemStack item = damager.getInventory().getItemInMainHand();
+        if (!item.equals(nameItem(new ItemStack(Material.IRON_SWORD), "&b&lStratigon's Sword"))
+                || !item.equals(nameItem(new ItemStack(Material.BOW), "&b&lPterarcho's Bow"))
+                || !item.equals(nameItem(new ItemStack(Material.IRON_AXE), "&b&lNavarcho's Axe"))
+                || !item.equals(nameItem(new ItemStack(Material.IRON_AXE), "&b&lAntinavarcho's Axe"))
+                ) return;
+        if(new Random().nextInt(100) > 5) return;
+
+        switch(getClass(damager)){
+            case NAVARCHO: hurt.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 10, 1));
+            case ANTINAVARCHO: hurt.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 10, 1));
+            case STRATIGON: hurt.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 10, 1));
+            case PTERARCHO: hurt.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 60, 1));
+        }
+    }
+
+
 
 
 
