@@ -14,10 +14,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -43,9 +45,18 @@ public final class Gods extends JavaPlugin implements Listener{
         getConfig().options().copyDefaults(true);
         saveConfig();
         getServer().getPluginManager().registerEvents(this, this);
-        init();
         settings.setup(this);
 
+    }
+
+    @EventHandler
+    public void onLoaded(PluginEnableEvent e){
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                init();
+            }
+        }.runTaskLater(this, 40);
     }
 
     @Override
@@ -142,6 +153,13 @@ public final class Gods extends JavaPlugin implements Listener{
     }
 
     @EventHandler
+    public void onInvClose(InventoryCloseEvent e){
+        if(!(e.getInventory().equals(c) || e.getInventory().equals(inventory))) return;
+        if(e.getInventory().equals(c)) e.getPlayer().openInventory(c);
+        if(e.getInventory().equals(inventory)) e.getPlayer().openInventory(inventory);
+    }
+
+    @EventHandler
     public void clickClass(InventoryClickEvent event){
         if(!event.getClickedInventory().equals(inventory)) return;
         if(!(event.getWhoClicked() instanceof Player)) return;
@@ -152,15 +170,16 @@ public final class Gods extends JavaPlugin implements Listener{
         event.getWhoClicked().closeInventory();
     }
 
-    @EventHandler
+    //@EventHandler
     public void join(PlayerJoinEvent e){
-        if(settings.getData().get("player." + e.getPlayer().getUniqueId()) != null) return;
+
         new BukkitRunnable(){
             @Override
             public void run() {
+                if(settings.getData().get("player." + e.getPlayer().getUniqueId()) != null) return;
                 e.getPlayer().openInventory(inventory);
             }
-        }.runTaskLater(this, 20);
+        }.runTaskLater(this, 40);
     }
 
     private void godPlayer(God god,Player player){
@@ -360,7 +379,7 @@ public final class Gods extends JavaPlugin implements Listener{
             damager = (Player) e.getDamager();
         }
 
-        ItemStack item = damager.getInventory().getItemInMainHand();
+        ItemStack item = damager.getItemInHand();
         if (!item.equals(nameItem(new ItemStack(Material.IRON_SWORD), "&b&lStratigon's Sword"))
                 || !item.equals(nameItem(new ItemStack(Material.BOW), "&b&lPterarcho's Bow"))
                 || !item.equals(nameItem(new ItemStack(Material.IRON_AXE), "&b&lNavarcho's Axe"))
